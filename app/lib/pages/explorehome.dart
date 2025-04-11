@@ -79,7 +79,7 @@ class _ExplorePageState extends State<ExplorePage> {
                           },
                         )
                         : const Text(
-                          'Latest Episodes Before TV',
+                          'Explore Latest ',
                           style: TextStyle(color: Colors.white),
                         ),
                 actions: [
