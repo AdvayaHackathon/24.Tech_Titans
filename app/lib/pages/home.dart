@@ -1,10 +1,10 @@
-import 'package:app/pages/components/allinone.dart';
 import 'package:app/pages/culturehome.dart';
 import 'package:app/pages/tourismhome.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:app/pages/ApiFunctions/apis.dart';
 import 'components/destails.dart';
+import 'explorehome.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -18,9 +18,9 @@ class _MainPageState extends State<MainPage> {
 
   final List<Widget> _pages = [
     HomePage(button: false), // Your banner carousel page
-    CultureHome(),
+    TourismHome(),
     ExplorePage(),
-    AllinOne(button: true, type: "culture"),
+    CultureHome(),
     MySpacePage(),
   ];
 
@@ -326,39 +326,6 @@ class LatestReleasesPage extends StatelessWidget {
           style: TextStyle(color: Colors.white, fontSize: 16),
         ),
       ),
-    );
-  }
-}
-
-class TourismPage extends StatelessWidget {
-  const TourismPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text("Search Page", style: TextStyle(color: Colors.white)),
-    );
-  }
-}
-
-class ExplorePage extends StatelessWidget {
-  const ExplorePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text("Search Page", style: TextStyle(color: Colors.white)),
-    );
-  }
-}
-
-class CulturePage extends StatelessWidget {
-  const CulturePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text("Search Page", style: TextStyle(color: Colors.white)),
     );
   }
 }

@@ -1,88 +1,42 @@
 import 'package:flutter/material.dart';
+import 'ApiFunctions/apis.dart';
 
-void main() => runApp(MyApp());
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Latest Episodes',
-      debugShowCheckedModeBanner: false,
-      home: LatestEpisodesPage(),
-    );
-  }
-}
-
-class LatestEpisodesPage extends StatefulWidget {
-  const LatestEpisodesPage({super.key});
+class ExplorePage extends StatefulWidget {
+  const ExplorePage({super.key});
 
   @override
-  State<LatestEpisodesPage> createState() => _LatestEpisodesPageState();
+  State<ExplorePage> createState() => _ExplorePageState();
 }
 
-class _LatestEpisodesPageState extends State<LatestEpisodesPage> {
+class _ExplorePageState extends State<ExplorePage> {
   final TextEditingController _searchController = TextEditingController();
   bool _isSearching = false;
+  bool _isLoading = false;
   String _searchQuery = '';
+  bool istourism = true;
 
-  List<Map<String, String>> episodes = List.generate(
-    10,
-    (i) => makeEpisode(i + 1, titles[i], subtitles[i], durations[i]),
-  );
+  late List<Map<String, String>> episodes = [];
+  @override
+  void initState() {
+    print("Entered initState()");
+    super.initState();
+    getdata();
+  }
 
-  static final titles = [
-    "Shruthi's Shocking Deci...",
-    "Kaveri Dies",
-    "Bhagya's Bold Advice",
-    "Veera's Plot Against Ved...",
-    "Ajith's Silent Longing",
-    "Bhadra Meets Jeeva",
-    "Drishti's Second Win",
-    "Manjula Saves Raghu",
-    "Venkatesh Tells Arundat...",
-    "Vadhu in Danger",
-  ];
+  void getdata() async {
+    setState(() {
+      _isLoading = true;
+    });
 
-  static final subtitles = [
-    'S1 E440 • 11 Apr',
-    'S2 E604 • 10 Apr',
-    'S1 E761 • 11 Apr',
-    'S2 E194 • 11 Apr',
-    'S1 E176 • 11 Apr',
-    'S1 E253 • 11 Apr',
-    'S1 E187 • 11 Apr',
-    'S1 E55 • 11 Apr',
-    'S1 E203 • 11 Apr',
-    'S1 E99 • 11 Apr',
-  ];
+    if (istourism) {
+      episodes = await getalltouristplaces();
+    } else {
+      episodes = await getallculturalplaces();
+    }
 
-  static final durations = [
-    '21m',
-    '21m',
-    '21m',
-    '20m',
-    '21m',
-    '21m',
-    '20m',
-    '41m',
-    '21m',
-    '21m',
-  ];
-
-  static Map<String, String> makeEpisode(
-    int num,
-    String title,
-    String subtitle,
-    String duration,
-  ) {
-    return {
-      'image': 'https://via.placeholder.com/150x90.png?text=Episode+$num',
-      'title': title,
-      'subtitle': subtitle,
-      'duration': duration,
-    };
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   List<Map<String, String>> get _filteredEpisodes {
@@ -175,21 +129,12 @@ class _LatestEpisodesPageState extends State<LatestEpisodesPage> {
                                 ),
                                 color: Colors.black54,
                                 child: Text(
-                                  episode['duration']!,
+                                  episode['city']!,
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 12,
                                   ),
                                 ),
-                              ),
-                            ),
-                            const Positioned(
-                              top: 4,
-                              left: 4,
-                              child: Icon(
-                                Icons.play_circle_fill,
-                                size: 24,
-                                color: Colors.white70,
                               ),
                             ),
                           ],
@@ -205,7 +150,7 @@ class _LatestEpisodesPageState extends State<LatestEpisodesPage> {
                           ),
                         ),
                         Text(
-                          episode['subtitle']!,
+                          episode['city']!,
                           style: const TextStyle(
                             color: Colors.grey,
                             fontSize: 12,
@@ -224,12 +169,11 @@ class _LatestEpisodesPageState extends State<LatestEpisodesPage> {
               ),
             ],
           ),
-
           // Floating bar
           Positioned(
             left: 16,
             right: 16,
-            bottom: 70,
+            bottom: 40,
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 8),
               decoration: BoxDecoration(
@@ -238,31 +182,62 @@ class _LatestEpisodesPageState extends State<LatestEpisodesPage> {
                   colors: [Color(0xFF1E1E1E), Color(0xFF2D2D2D)],
                 ),
               ),
+
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: const [
-                  _FloatingTab(label: 'Tourism'),
-                  _FloatingTab(label: 'Culture'),
+                children: [
+                  InkWell(
+                    onTap: () async {
+                      setState(() {
+                        istourism = true;
+                      });
+                      getdata();
+                    },
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.transparent, // transparent background
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Text(
+                        'Tourism',
+                        style: TextStyle(color: Colors.white, fontSize: 14),
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () async {
+                      setState(() {
+                        istourism = false;
+                      });
+                      getdata();
+                    },
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.transparent, // transparent background
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Text(
+                        'Culture',
+                        style: TextStyle(color: Colors.white, fontSize: 14),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
         ],
       ),
-    );
-  }
-}
-
-class _FloatingTab extends StatelessWidget {
-  final String label;
-
-  const _FloatingTab({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      label,
-      style: const TextStyle(color: Colors.white, fontSize: 16),
     );
   }
 }

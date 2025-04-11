@@ -1,3 +1,4 @@
+import 'package:app/pages/ApiFunctions/functions.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:app/pages/ApiFunctions/apis.dart';
@@ -11,8 +12,19 @@ class CultureHome extends StatefulWidget {
 
 class _BannerWithCarouselPageState extends State<CultureHome> {
   List<Map<String, String>> bannerItems = [];
-  List<Map<String, String>> latestReleases = [];
-  List<Map<String, String>> releasesForSlider2 = [];
+  List<Map<String, String>> UpcomingFest = [];
+  List<Map<String, String>> FestivalsPlaces = [];
+  List<Map<String, String>> CulturalEvents = [];
+  List<Map<String, String>> ReligiousFestivals = [];
+  List<Map<String, String>> ReligiousSites = [];
+  List<List<Map<String, String>>> Listofall = [];
+  List<String> types = [
+    'Upcoming Festivals in ${getCurrentMonth()}',
+    'Festivals',
+    'Cultural Events',
+    'Religious Festivals',
+    'Religious Sites',
+  ];
 
   late List<bool> _showSeeMoreList;
   late List<ScrollController> _scrollControllers;
@@ -42,8 +54,20 @@ class _BannerWithCarouselPageState extends State<CultureHome> {
 
   Future<void> fetchData() async {
     bannerItems = await getcultureplaces();
-    latestReleases = await getcultureplaces();
-    setState(() {});
+    UpcomingFest = await getupcomingcultureplaces();
+    FestivalsPlaces = await getculturalplacesspecific("Festival");
+    ReligiousFestivals = await getculturalplacesspecific("Religious Festival");
+    CulturalEvents = await getculturalplacesspecific("Cultural Event");
+    ReligiousSites = await getculturalplacesspecific("Religious Site");
+    setState(() {
+      Listofall = [
+        UpcomingFest,
+        FestivalsPlaces,
+        CulturalEvents,
+        ReligiousFestivals,
+        ReligiousSites,
+      ];
+    });
   }
 
   @override
@@ -148,7 +172,7 @@ class _BannerWithCarouselPageState extends State<CultureHome> {
               ),
             ),
             // Repeated Horizontal Carousels
-            ...List.generate(5, (i) {
+            ...List.generate(types.length, (i) {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -161,7 +185,7 @@ class _BannerWithCarouselPageState extends State<CultureHome> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Latest Releases ${i + 1}',
+                          types[i],
                           style: TextStyle(
                             fontSize: 20,
                             color: Colors.white,
@@ -199,9 +223,9 @@ class _BannerWithCarouselPageState extends State<CultureHome> {
                       controller: _scrollControllers[i],
                       scrollDirection: Axis.horizontal,
                       padding: EdgeInsets.symmetric(horizontal: 12),
-                      itemCount: latestReleases.length,
+                      itemCount: Listofall[i].length,
                       itemBuilder: (context, index) {
-                        final item = latestReleases[index];
+                        final item = Listofall[i][index];
                         return GestureDetector(
                           onTap: () {
                             Navigator.push(

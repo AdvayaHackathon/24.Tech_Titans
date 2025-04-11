@@ -4,16 +4,20 @@ import 'package:app/pages/ApiFunctions/apis.dart';
 import 'package:app/pages/components/destails.dart';
 
 class TourismHome extends StatefulWidget {
-  final bool button;
-  const TourismHome({super.key, required this.button});
+  const TourismHome({super.key});
   @override
   State<TourismHome> createState() => _BannerWithCarouselPageState();
 }
 
 class _BannerWithCarouselPageState extends State<TourismHome> {
   List<Map<String, String>> bannerItems = [];
-  List<Map<String, String>> latestReleases = [];
-  List<Map<String, String>> releasesForSlider2 = [];
+  List<Map<String, String>> NatureItems = [];
+  List<Map<String, String>> HistoricalItems = [];
+  List<Map<String, String>> BeachItems = [];
+  List<Map<String, String>> WildLifeItems = [];
+  List<List<Map<String, String>>> listofall = [];
+
+  List<String> types = ['Nature', 'Beach', 'Wildlife', 'Historical'];
 
   late List<bool> _showSeeMoreList;
   late List<ScrollController> _scrollControllers;
@@ -43,8 +47,14 @@ class _BannerWithCarouselPageState extends State<TourismHome> {
 
   Future<void> fetchData() async {
     bannerItems = await gettouristplaces();
-    latestReleases = await gettouristplaces();
-    setState(() {});
+    NatureItems = await gettouristplacesspecific('Nature');
+    HistoricalItems = await gettouristplacesspecific('Historical');
+    BeachItems = await gettouristplacesspecific('Beach');
+    WildLifeItems = await gettouristplacesspecific('Wildlife');
+
+    setState(() {
+      listofall = [NatureItems, BeachItems, WildLifeItems, HistoricalItems];
+    });
   }
 
   @override
@@ -64,92 +74,94 @@ class _BannerWithCarouselPageState extends State<TourismHome> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // BANNER CAROUSEL
-            CarouselSlider.builder(
-              itemCount: bannerItems.length,
-              itemBuilder: (context, index, realIndex) {
-                final banner = bannerItems[index];
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder:
-                            (_) => DetailPage(
-                              title: banner['title']!,
-                              imagePath: banner['image']!,
+            bannerItems.isNotEmpty
+                ? CarouselSlider.builder(
+                  itemCount: bannerItems.length,
+                  itemBuilder: (context, index, realIndex) {
+                    final banner = bannerItems[index];
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (_) => DetailPage(
+                                  title: banner['title']!,
+                                  imagePath: banner['image']!,
+                                ),
+                          ),
+                        );
+                      },
+                      child: Stack(
+                        children: [
+                          Image.network(
+                            banner['image']!,
+                            width: double.infinity,
+                            height: 400,
+                            fit: BoxFit.cover,
+                          ),
+                          Container(
+                            height: 400,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Colors.transparent,
+                                  Colors.black.withOpacity(0.8),
+                                ],
+                              ),
                             ),
+                          ),
+                          Positioned(
+                            bottom: 34,
+                            left: 16,
+                            child: Text(
+                              banner['title']!,
+                              style: TextStyle(
+                                fontSize: 28,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 15,
+                            left: 16,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.location_on,
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
+                                SizedBox(width: 4),
+                                Text(
+                                  banner['city']!,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     );
                   },
-                  child: Stack(
-                    children: [
-                      Image.network(
-                        banner['image']!,
-                        width: double.infinity,
-                        height: 400,
-                        fit: BoxFit.cover,
-                      ),
-                      Container(
-                        height: 400,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.transparent,
-                              Colors.black.withOpacity(0.8),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 34,
-                        left: 16,
-                        child: Text(
-                          banner['title']!,
-                          style: TextStyle(
-                            fontSize: 28,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 15,
-                        left: 16,
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.location_on,
-                              color: Colors.white,
-                              size: 16,
-                            ),
-                            SizedBox(width: 4),
-                            Text(
-                              banner['city']!,
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                  options: CarouselOptions(
+                    height: 400,
+                    viewportFraction: 1.0,
+                    autoPlay: true,
+                    autoPlayInterval: Duration(seconds: 4),
+                    autoPlayAnimationDuration: Duration(milliseconds: 1000),
+                    autoPlayCurve: Curves.easeInOut,
                   ),
-                );
-              },
-              options: CarouselOptions(
-                height: 400,
-                viewportFraction: 1.0,
-                autoPlay: true,
-                autoPlayInterval: Duration(seconds: 4),
-                autoPlayAnimationDuration: Duration(milliseconds: 1000),
-                autoPlayCurve: Curves.easeInOut,
-              ),
-            ),
+                )
+                : Center(child: CircularProgressIndicator(color: Colors.white)),
             // Repeated Horizontal Carousels
-            ...List.generate(5, (i) {
+            ...List.generate(types.length, (i) {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -162,7 +174,7 @@ class _BannerWithCarouselPageState extends State<TourismHome> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Latest Releases ${i + 1}',
+                          types[i],
                           style: TextStyle(
                             fontSize: 20,
                             color: Colors.white,
@@ -196,40 +208,47 @@ class _BannerWithCarouselPageState extends State<TourismHome> {
                   // Horizontal Carousel
                   SizedBox(
                     height: 180,
-                    child: ListView.builder(
-                      controller: _scrollControllers[i],
-                      scrollDirection: Axis.horizontal,
-                      padding: EdgeInsets.symmetric(horizontal: 12),
-                      itemCount: latestReleases.length,
-                      itemBuilder: (context, index) {
-                        final item = latestReleases[index];
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (_) => DetailPage(
-                                      title: item['title']!,
-                                      imagePath: item['image']!,
+                    child:
+                        listofall.isNotEmpty
+                            ? ListView.builder(
+                              controller: _scrollControllers[i],
+                              scrollDirection: Axis.horizontal,
+                              padding: EdgeInsets.symmetric(horizontal: 12),
+                              itemCount: listofall[i].length,
+                              itemBuilder: (context, index) {
+                                final item = listofall[i][index];
+                                return GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (_) => DetailPage(
+                                              title: item['title']!,
+                                              imagePath: item['image']!,
+                                            ),
+                                      ),
+                                    );
+                                  },
+                                  child: Container(
+                                    margin: EdgeInsets.only(right: 12),
+                                    width: 120,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      image: DecorationImage(
+                                        image: NetworkImage(item['image']!),
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
-                              ),
-                            );
-                          },
-                          child: Container(
-                            margin: EdgeInsets.only(right: 12),
-                            width: 120,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              image: DecorationImage(
-                                image: NetworkImage(item['image']!),
-                                fit: BoxFit.cover,
+                                  ),
+                                );
+                              },
+                            )
+                            : Center(
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
                               ),
                             ),
-                          ),
-                        );
-                      },
-                    ),
                   ),
                 ],
               );
