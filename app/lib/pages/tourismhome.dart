@@ -22,6 +22,9 @@ class _BannerWithCarouselPageState extends State<TourismHome> {
   late List<bool> _showSeeMoreList;
   late List<ScrollController> _scrollControllers;
 
+  bool _showSearchBar = false;
+  TextEditingController _searchController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -62,6 +65,7 @@ class _BannerWithCarouselPageState extends State<TourismHome> {
     for (final controller in _scrollControllers) {
       controller.dispose();
     }
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -73,94 +77,138 @@ class _BannerWithCarouselPageState extends State<TourismHome> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // BANNER CAROUSEL
             bannerItems.isNotEmpty
-                ? CarouselSlider.builder(
-                  itemCount: bannerItems.length,
-                  itemBuilder: (context, index, realIndex) {
-                    final banner = bannerItems[index];
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (_) => DetailPage(
-                                  title: banner['title']!,
-                                  imagePath: banner['image']!,
+                ? Stack(
+                  children: [
+                    CarouselSlider.builder(
+                      itemCount: bannerItems.length,
+                      itemBuilder: (context, index, realIndex) {
+                        final banner = bannerItems[index];
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (_) => DetailPage(
+                                      title: banner['title']!,
+                                      imagePath: banner['image']!,
+                                    ),
+                              ),
+                            );
+                          },
+                          child: Stack(
+                            children: [
+                              Image.network(
+                                banner['image']!,
+                                width: double.infinity,
+                                height: 400,
+                                fit: BoxFit.cover,
+                              ),
+                              Container(
+                                height: 400,
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      Colors.transparent,
+                                      Colors.black.withOpacity(0.8),
+                                    ],
+                                  ),
                                 ),
+                              ),
+                              Positioned(
+                                bottom: 34,
+                                left: 16,
+                                child: Text(
+                                  banner['title']!,
+                                  style: TextStyle(
+                                    fontSize: 28,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                bottom: 15,
+                                left: 16,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.location_on,
+                                      color: Colors.white,
+                                      size: 16,
+                                    ),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      banner['city']!,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         );
                       },
-                      child: Stack(
-                        children: [
-                          Image.network(
-                            banner['image']!,
-                            width: double.infinity,
-                            height: 400,
-                            fit: BoxFit.cover,
-                          ),
-                          Container(
-                            height: 400,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [
-                                  Colors.transparent,
-                                  Colors.black.withOpacity(0.8),
-                                ],
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 34,
-                            left: 16,
-                            child: Text(
-                              banner['title']!,
-                              style: TextStyle(
-                                fontSize: 28,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 15,
-                            left: 16,
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.location_on,
-                                  color: Colors.white,
-                                  size: 16,
-                                ),
-                                SizedBox(width: 4),
-                                Text(
-                                  banner['city']!,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                      options: CarouselOptions(
+                        height: 400,
+                        viewportFraction: 1.0,
+                        autoPlay: true,
+                        autoPlayInterval: Duration(seconds: 4),
+                        autoPlayAnimationDuration: Duration(milliseconds: 1000),
+                        autoPlayCurve: Curves.easeInOut,
                       ),
-                    );
-                  },
-                  options: CarouselOptions(
-                    height: 400,
-                    viewportFraction: 1.0,
-                    autoPlay: true,
-                    autoPlayInterval: Duration(seconds: 4),
-                    autoPlayAnimationDuration: Duration(milliseconds: 1000),
-                    autoPlayCurve: Curves.easeInOut,
-                  ),
+                    ),
+                    Positioned(
+                      top: 40,
+                      right: 16,
+                      child: IconButton(
+                        icon: Icon(
+                          _showSearchBar ? Icons.close : Icons.search,
+                          color: Colors.white,
+                          size: 28,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _showSearchBar = !_showSearchBar;
+                          });
+                        },
+                      ),
+                    ),
+                    if (_showSearchBar)
+                      Positioned(
+                        top: 40,
+                        left: 16,
+                        right: 64,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          child: TextField(
+                            controller: _searchController,
+                            style: TextStyle(color: Colors.black),
+                            decoration: InputDecoration(
+                              hintText: 'Search places...',
+                              border: InputBorder.none,
+                              icon: Icon(Icons.search, color: Colors.black),
+                            ),
+                            onChanged: (value) {
+                              // You can add search filtering logic here
+                            },
+                          ),
+                        ),
+                      ),
+                  ],
                 )
                 : Center(child: CircularProgressIndicator(color: Colors.white)),
-            // Repeated Horizontal Carousels
+
             ...List.generate(types.length, (i) {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -205,7 +253,6 @@ class _BannerWithCarouselPageState extends State<TourismHome> {
                       ],
                     ),
                   ),
-                  // Horizontal Carousel
                   SizedBox(
                     height: 180,
                     child:

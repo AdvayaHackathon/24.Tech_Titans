@@ -69,19 +69,12 @@ class HomePage extends StatefulWidget {
 
 class _BannerWithCarouselPageState extends State<HomePage> {
   List<Map<String, String>> bannerItems = [];
-  List<Map<String, String>> seasonplaceslist = [];
-  List<Map<String, String>> upcomingculturalplaces = [];
-  List<Map<String, String>> highratedplaces = [];
-  List<List<Map<String, String>>> listofall = [];
-
-  List<String> title = [
-    "Best to Visit in ${getCurrentSeason()}",
-    "Upcoming Festivals in ${getCurrentMonth()}",
-    "High Rated Places",
-  ];
-
+  List<Map<String, String>> latestReleases = [];
   late List<bool> _showSeeMoreList;
   late List<ScrollController> _scrollControllers;
+
+  bool _showSearchBar = false;
+  TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -108,10 +101,7 @@ class _BannerWithCarouselPageState extends State<HomePage> {
 
   Future<void> fetchData() async {
     bannerItems = await getbanneritems();
-    seasonplaceslist = await gettouristplacesbyseason("Summer");
-    upcomingculturalplaces = await getupcomingcultureplaces();
-    highratedplaces = await gethighratedtouristplaces();
-    listofall = [seasonplaceslist, upcomingculturalplaces, highratedplaces];
+    latestReleases = await getbanneritems();
     setState(() {});
   }
 
@@ -120,6 +110,7 @@ class _BannerWithCarouselPageState extends State<HomePage> {
     for (final controller in _scrollControllers) {
       controller.dispose();
     }
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -127,156 +118,181 @@ class _BannerWithCarouselPageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // BANNER CAROUSEL
-            bannerItems.isEmpty
-                ? Center(child: CircularProgressIndicator(color: Colors.white))
-                : CarouselSlider.builder(
-                  itemCount: bannerItems.length,
-                  itemBuilder: (context, index, realIndex) {
-                    final banner = bannerItems[index];
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (_) => DetailPage(
-                                  title: banner['title']!,
-                                  imagePath: banner['image']!,
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Banner Carousel with Search Icon
+                SizedBox(
+                  height: 400,
+                  child: Stack(
+                    children: [
+                      CarouselSlider.builder(
+                        itemCount: bannerItems.length,
+                        itemBuilder: (context, index, realIndex) {
+                          final banner = bannerItems[index];
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (_) => DetailPage(
+                                        title: banner['title']!,
+                                        imagePath: banner['image']!,
+                                      ),
                                 ),
-                          ),
-                        );
-                      },
-                      child: Stack(
-                        children: [
-                          Image.network(
-                            banner['image']!,
-                            width: double.infinity,
-                            height: 400,
-                            fit: BoxFit.cover,
-                          ),
-                          Container(
-                            height: 400,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [
-                                  Colors.transparent,
-                                  Colors.black.withOpacity(0.8),
-                                ],
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 34,
-                            left: 16,
-                            child: Text(
-                              banner['title']!,
-                              style: TextStyle(
-                                fontSize: 28,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 15,
-                            left: 16,
-                            child: Row(
+                              );
+                            },
+                            child: Stack(
                               children: [
-                                Icon(
-                                  Icons.location_on,
-                                  color: Colors.white,
-                                  size: 16,
+                                Image.network(
+                                  banner['image']!,
+                                  width: double.infinity,
+                                  height: 400,
+                                  fit: BoxFit.cover,
                                 ),
-                                SizedBox(width: 4),
-                                Text(
-                                  banner['city']!,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.white,
+                                Container(
+                                  height: 400,
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [
+                                        Colors.black.withOpacity(0.3),
+                                        Colors.black.withOpacity(0.7),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  bottom: 34,
+                                  left: 16,
+                                  child: Text(
+                                    banner['title']!,
+                                    style: TextStyle(
+                                      fontSize: 28,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  bottom: 15,
+                                  left: 16,
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.location_on,
+                                        color: Colors.white,
+                                        size: 16,
+                                      ),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        banner['city']!,
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],
                             ),
+                          );
+                        },
+                        options: CarouselOptions(
+                          height: 400,
+                          viewportFraction: 1.0,
+                          autoPlay: true,
+                          autoPlayInterval: Duration(seconds: 4),
+                          autoPlayAnimationDuration: Duration(
+                            milliseconds: 1000,
                           ),
-                        ],
+                          autoPlayCurve: Curves.easeInOut,
+                        ),
                       ),
-                    );
-                  },
-                  options: CarouselOptions(
-                    height: 400,
-                    viewportFraction: 1.0,
-                    autoPlay: true,
-                    autoPlayInterval: Duration(seconds: 4),
-                    autoPlayAnimationDuration: Duration(milliseconds: 1000),
-                    autoPlayCurve: Curves.easeInOut,
+
+                      // Search Icon
+                      Positioned(
+                        top: 40,
+                        right: 16,
+                        child: IconButton(
+                          icon: Icon(
+                            _showSearchBar ? Icons.close : Icons.search,
+                            color: Colors.white,
+                            size: 28,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _showSearchBar = !_showSearchBar;
+                              if (!_showSearchBar) _searchController.clear();
+                            });
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-            // Repeated Horizontal Carousels
-            ...List.generate(title.length, (i) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          title[i],
-                          style: TextStyle(
-                            fontSize: 20,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
+
+                // Horizontal carousels
+                ...List.generate(5, (i) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
                         ),
-                        AnimatedOpacity(
-                          opacity: _showSeeMoreList[i] ? 1.0 : 0.0,
-                          duration: Duration(milliseconds: 300),
-                          child: IconButton(
-                            icon: Icon(
-                              Icons.arrow_forward_ios,
-                              color: Colors.white,
-                              size: 18,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Latest Releases ${i + 1}',
+                              style: TextStyle(
+                                fontSize: 20,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                            onPressed: () {
-                              if (_showSeeMoreList[i]) {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const LatestReleasesPage(),
-                                  ),
-                                );
-                              }
-                            },
-                          ),
+                            AnimatedOpacity(
+                              opacity: _showSeeMoreList[i] ? 1.0 : 0.0,
+                              duration: Duration(milliseconds: 300),
+                              child: IconButton(
+                                icon: Icon(
+                                  Icons.arrow_forward_ios,
+                                  color: Colors.white,
+                                  size: 18,
+                                ),
+                                onPressed: () {
+                                  if (_showSeeMoreList[i]) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (_) => const LatestReleasesPage(),
+                                      ),
+                                    );
+                                  }
+                                },
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
-                  // Horizontal Carousel
-                  listofall.isEmpty
-                      ? Center(
-                        child: CircularProgressIndicator(color: Colors.white),
-                      )
-                      : SizedBox(
+                      ),
+                      SizedBox(
                         height: 180,
                         child: ListView.builder(
                           controller: _scrollControllers[i],
                           scrollDirection: Axis.horizontal,
                           padding: EdgeInsets.symmetric(horizontal: 12),
-                          itemCount: listofall[i].length,
+                          itemCount: latestReleases.length,
                           itemBuilder: (context, index) {
-                            final item = listofall[i][index];
+                            final item = latestReleases[index];
                             return GestureDetector(
                               onTap: () {
                                 Navigator.push(
@@ -363,19 +379,48 @@ class _BannerWithCarouselPageState extends State<HomePage> {
                           },
                         ),
                       ),
-                ],
-              );
-            }),
-          ],
-        ),
+                    ],
+                  );
+                }),
+              ],
+            ),
+          ),
+
+          // Search Bar Overlay
+          if (_showSearchBar)
+            Positioned(
+              top: 40,
+              left: 16,
+              right: 60,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  color: Colors.grey[900],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: TextField(
+                  controller: _searchController,
+                  style: TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    hintText: 'Search...',
+                    hintStyle: TextStyle(color: Colors.grey),
+                    border: InputBorder.none,
+                  ),
+                  onChanged: (query) {
+                    // Live search logic here
+                  },
+                ),
+              ),
+            ),
+        ],
       ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 16, right: 16),
         child: FloatingActionButton(
           onPressed: () {
-            // Add your map logic here
+            // Your map logic
           },
-          backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+          backgroundColor: Colors.black,
           child: Icon(Icons.location_on, color: Colors.white, size: 30),
         ),
       ),
