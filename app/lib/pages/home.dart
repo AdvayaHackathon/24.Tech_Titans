@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:app/pages/ApiFunctions/apis.dart';
+import 'components/destails.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -8,10 +10,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _BannerWithCarouselPageState extends State<HomePage> {
-  final List<Map<String, String>> bannerItems = [];
+  List<Map<String, String>> bannerItems = [];
 
-  final List<Map<String, String>> latestReleases = [];
-  final List<Map<String, String>> releasesForSlider2 = [];
+  List<Map<String, String>> latestReleases = [];
+  List<Map<String, String>> releasesForSlider2 = [];
 
   late List<bool> _showSeeMoreList;
   late List<ScrollController> _scrollControllers;
@@ -19,6 +21,7 @@ class _BannerWithCarouselPageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    fetchData();
     int numberOfSliders = 5;
     _showSeeMoreList = List.generate(numberOfSliders, (_) => false);
     _scrollControllers = List.generate(numberOfSliders, (index) {
@@ -36,6 +39,12 @@ class _BannerWithCarouselPageState extends State<HomePage> {
       });
       return controller;
     });
+  }
+
+  Future<void> fetchData() async {
+    bannerItems = await getbanneritems();
+    latestReleases = await getbanneritems();
+    setState(() {});
   }
 
   @override
@@ -74,7 +83,7 @@ class _BannerWithCarouselPageState extends State<HomePage> {
                   },
                   child: Stack(
                     children: [
-                      Image.asset(
+                      Image.network(
                         banner['image']!,
                         width: double.infinity,
                         height: 400,
@@ -95,7 +104,7 @@ class _BannerWithCarouselPageState extends State<HomePage> {
                         ),
                       ),
                       Positioned(
-                        bottom: 30,
+                        bottom: 34,
                         left: 16,
                         child: Text(
                           banner['title']!,
@@ -104,6 +113,27 @@ class _BannerWithCarouselPageState extends State<HomePage> {
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 15,
+                        left: 16,
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.location_on,
+                              color: Colors.white,
+                              size: 16,
+                            ),
+                            SizedBox(width: 4),
+                            Text(
+                              banner['city']!,
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -193,7 +223,7 @@ class _BannerWithCarouselPageState extends State<HomePage> {
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(8),
                               image: DecorationImage(
-                                image: AssetImage(item['image']!),
+                                image: NetworkImage(item['image']!),
                                 fit: BoxFit.cover,
                               ),
                             ),
@@ -207,55 +237,6 @@ class _BannerWithCarouselPageState extends State<HomePage> {
             }),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class DetailPage extends StatelessWidget {
-  final String title;
-  final String imagePath;
-
-  const DetailPage({super.key, required this.title, required this.imagePath});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Stack(
-            children: [
-              Container(
-                height: 300,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage(imagePath),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-              Positioned(
-                top: 40,
-                left: 16,
-                child: IconButton(
-                  icon: Icon(Icons.arrow_back, color: Colors.white, size: 28),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 20),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              title,
-              style: TextStyle(fontSize: 26, color: Colors.white),
-            ),
-          ),
-        ],
       ),
     );
   }
