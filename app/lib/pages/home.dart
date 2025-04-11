@@ -1,4 +1,6 @@
 import 'package:app/pages/components/allinone.dart';
+import 'package:app/pages/culturehome.dart';
+import 'package:app/pages/tourismhome.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:app/pages/ApiFunctions/apis.dart';
@@ -16,9 +18,9 @@ class _MainPageState extends State<MainPage> {
 
   final List<Widget> _pages = [
     HomePage(button: false), // Your banner carousel page
-    AllinOne(button: true),
+    CultureHome(),
     ExplorePage(),
-    CulturePage(),
+    AllinOne(button: true, type: "culture"),
     MySpacePage(),
   ];
 
