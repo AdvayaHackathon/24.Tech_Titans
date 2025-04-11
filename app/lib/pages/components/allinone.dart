@@ -1,70 +1,17 @@
-import 'package:app/pages/components/allinone.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:app/pages/ApiFunctions/apis.dart';
-import 'components/destails.dart';
+import 'package:app/pages/components/destails.dart';
 
-class MainPage extends StatefulWidget {
-  const MainPage({super.key});
-
-  @override
-  State<MainPage> createState() => _MainPageState();
-}
-
-class _MainPageState extends State<MainPage> {
-  int _selectedIndex = 0;
-
-  final List<Widget> _pages = [
-    HomePage(button: false), // Your banner carousel page
-    AllinOne(button: true),
-    ExplorePage(),
-    CulturePage(),
-    MySpacePage(),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.black,
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.grey,
-        currentIndex: _selectedIndex,
-        type: BottomNavigationBarType.fixed,
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.travel_explore),
-            label: 'Tourism',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.bolt), label: 'Explore'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.festival_outlined),
-            label: 'Culture',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'My Space'),
-        ],
-      ),
-    );
-  }
-}
-
-class HomePage extends StatefulWidget {
+class AllinOne extends StatefulWidget {
   final bool button;
 
-  const HomePage({super.key, required this.button});
+  const AllinOne({super.key, required this.button});
   @override
-  State<HomePage> createState() => _BannerWithCarouselPageState();
+  State<AllinOne> createState() => _BannerWithCarouselPageState();
 }
 
-class _BannerWithCarouselPageState extends State<HomePage> {
+class _BannerWithCarouselPageState extends State<AllinOne> {
   List<Map<String, String>> bannerItems = [];
   List<Map<String, String>> latestReleases = [];
   List<Map<String, String>> releasesForSlider2 = [];
@@ -96,8 +43,8 @@ class _BannerWithCarouselPageState extends State<HomePage> {
   }
 
   Future<void> fetchData() async {
-    bannerItems = await getbanneritems();
-    latestReleases = await getbanneritems();
+    bannerItems = await gettouristplaces();
+    latestReleases = await gettouristplaces();
     setState(() {});
   }
 
@@ -324,50 +271,6 @@ class LatestReleasesPage extends StatelessWidget {
           style: TextStyle(color: Colors.white, fontSize: 16),
         ),
       ),
-    );
-  }
-}
-
-class TourismPage extends StatelessWidget {
-  const TourismPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text("Search Page", style: TextStyle(color: Colors.white)),
-    );
-  }
-}
-
-class ExplorePage extends StatelessWidget {
-  const ExplorePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text("Search Page", style: TextStyle(color: Colors.white)),
-    );
-  }
-}
-
-class CulturePage extends StatelessWidget {
-  const CulturePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text("Search Page", style: TextStyle(color: Colors.white)),
-    );
-  }
-}
-
-class MySpacePage extends StatelessWidget {
-  const MySpacePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text("Search Page", style: TextStyle(color: Colors.white)),
     );
   }
 }
