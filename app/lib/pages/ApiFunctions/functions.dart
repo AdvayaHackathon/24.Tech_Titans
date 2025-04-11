@@ -16,3 +16,18 @@ String getCurrentMonth() {
   ];
   return monthNames[now.month - 1];
 }
+
+String getCurrentSeason() {
+  DateTime now = DateTime.now();
+  int month = now.month;
+
+  if (month >= 3 && month <= 6) {
+    return 'Summer';
+  } else if (month >= 7 && month <= 9) {
+    return 'Monsoon';
+  } else if (month >= 10 && month <= 11) {
+    return 'Autumn';
+  } else {
+    return 'Winter';
+  }
+}

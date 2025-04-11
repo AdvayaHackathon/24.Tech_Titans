@@ -14,6 +14,7 @@ class _ExplorePageState extends State<ExplorePage> {
   bool _isLoading = false;
   String _searchQuery = '';
   bool istourism = true;
+  String title = "Tourism Places";
 
   late List<Map<String, String>> episodes = [];
   @override
@@ -67,8 +68,8 @@ class _ExplorePageState extends State<ExplorePage> {
                         ? TextField(
                           controller: _searchController,
                           style: const TextStyle(color: Colors.white),
-                          decoration: const InputDecoration(
-                            hintText: 'Explore New Places and Cultures',
+                          decoration: InputDecoration(
+                            hintText: 'Search $title',
                             hintStyle: TextStyle(color: Colors.grey),
                             border: InputBorder.none,
                           ),
@@ -78,8 +79,8 @@ class _ExplorePageState extends State<ExplorePage> {
                             });
                           },
                         )
-                        : const Text(
-                          'Explore Latest ',
+                        : Text(
+                          'Explore Latest $title',
                           style: TextStyle(color: Colors.white),
                         ),
                 actions: [
@@ -189,6 +190,7 @@ class _ExplorePageState extends State<ExplorePage> {
                   InkWell(
                     onTap: () async {
                       setState(() {
+                        title = "Tourism Places";
                         istourism = true;
                       });
                       getdata();
@@ -212,6 +214,7 @@ class _ExplorePageState extends State<ExplorePage> {
                   InkWell(
                     onTap: () async {
                       setState(() {
+                        title = "Cultural Places";
                         istourism = false;
                       });
                       getdata();

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 final CollectionReference touristcollection = FirebaseFirestore.instance
     .collection('touristplaces');
@@ -190,6 +191,8 @@ Future<List<Map<String, String>>> getculturalplacesspecific(type) async {
       String placeId = placeDoc.id;
       String title = placeDoc['name'];
       String city = placeDoc['city'];
+      DateTime date = placeDoc['date_of_organizing'].toDate();
+      String formattedDate = "${date.day} ${DateFormat.MMMM().format(date)}";
       // Step 2: Fetch only one image for this place
       QuerySnapshot imagesSnapshot =
           await imagescollection
@@ -207,7 +210,8 @@ Future<List<Map<String, String>>> getculturalplacesspecific(type) async {
       touristplaces.add({
         'title': title,
         'image': imageUrl ?? '',
-        'city': city, // Use empty string if no image found
+        'city': city,
+        'date': formattedDate, // Use empty string if no image found
       });
     }
   } catch (e) {
@@ -231,6 +235,9 @@ Future<List<Map<String, String>>> getupcomingcultureplaces() async {
       String placeId = placeDoc.id;
       String title = placeDoc['name'];
       String city = placeDoc['city'];
+      DateTime date = placeDoc['date_of_organizing'].toDate();
+      String formattedDate = "${date.day} ${DateFormat.MMMM().format(date)}";
+
       // Step 2: Fetch only one image for this place
       QuerySnapshot imagesSnapshot =
           await imagescollection
@@ -248,7 +255,8 @@ Future<List<Map<String, String>>> getupcomingcultureplaces() async {
       touristplaces.add({
         'title': title,
         'image': imageUrl ?? '',
-        'city': city, // Use empty string if no image found
+        'city': city,
+        'date': formattedDate, // Use empty string if no image found
       });
     }
   } catch (e) {
@@ -307,6 +315,91 @@ Future<List<Map<String, String>>> getallculturalplaces() async {
         await culturalcollection
             .limit(5)
             .orderBy('name', descending: false)
+            .get();
+    print("done fetching popular places $popularplaces");
+    for (var placeDoc in popularplaces.docs) {
+      String placeId = placeDoc.id;
+      String title = placeDoc['name'];
+      String city = placeDoc['city'];
+      DateTime date = placeDoc['date_of_organizing'].toDate();
+      String formattedDate = "${date.day} ${DateFormat.MMMM().format(date)}";
+      // Step 2: Fetch only one image for this place
+      QuerySnapshot imagesSnapshot =
+          await imagescollection
+              .where('placeId', isEqualTo: placeId)
+              .limit(1)
+              .get();
+      print("done fetching images for $placeId");
+
+      String? imageUrl;
+      if (imagesSnapshot.docs.isNotEmpty) {
+        imageUrl = imagesSnapshot.docs.first['imageUrl'];
+      }
+
+      // Step 3: Combine into a JSON-like map
+      touristplaces.add({
+        'title': title,
+        'image': imageUrl ?? '',
+        'city': city,
+        'date': formattedDate, // Use empty string if no image found
+      });
+    }
+  } catch (e) {
+    print("Error fetching data: $e");
+  }
+  print(touristplaces);
+  return touristplaces;
+}
+
+Future<List<Map<String, String>>> gettouristplacesbyseason(type) async {
+  print("Entered gettouristplaces()");
+  final List<Map<String, String>> touristplaces = [];
+  try {
+    QuerySnapshot popularplaces =
+        await touristcollection
+            .limit(5)
+            .where('best_season', isEqualTo: type)
+            .get();
+    print("done fetching popular places $popularplaces");
+    for (var placeDoc in popularplaces.docs) {
+      String placeId = placeDoc.id;
+      String title = placeDoc['name'];
+      String city = placeDoc['city'];
+      // Step 2: Fetch only one image for this place
+      QuerySnapshot imagesSnapshot =
+          await imagescollection
+              .where('placeId', isEqualTo: placeId)
+              .limit(1)
+              .get();
+      print("done fetching images for $placeId");
+
+      String? imageUrl;
+      if (imagesSnapshot.docs.isNotEmpty) {
+        imageUrl = imagesSnapshot.docs.first['imageUrl'];
+      }
+
+      // Step 3: Combine into a JSON-like map
+      touristplaces.add({
+        'title': title,
+        'image': imageUrl ?? '',
+        'city': city, // Use empty string if no image found
+      });
+    }
+  } catch (e) {
+    print("Error fetching data: $e");
+  }
+  print(touristplaces);
+  return touristplaces;
+}
+
+Future<List<Map<String, String>>> gethighratedtouristplaces() async {
+  print("Entered gettouristplaces()");
+  final List<Map<String, String>> touristplaces = [];
+  try {
+    QuerySnapshot popularplaces =
+        await touristcollection
+            .limit(5)
+            .orderBy('review_rating', descending: true)
             .get();
     print("done fetching popular places $popularplaces");
     for (var placeDoc in popularplaces.docs) {
