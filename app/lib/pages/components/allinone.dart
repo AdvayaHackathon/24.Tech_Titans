@@ -6,7 +6,9 @@ import 'package:app/pages/components/destails.dart';
 class AllinOne extends StatefulWidget {
   final bool button;
 
-  const AllinOne({super.key, required this.button});
+  final dynamic type;
+
+  const AllinOne({super.key, required this.button, required this.type});
   @override
   State<AllinOne> createState() => _BannerWithCarouselPageState();
 }
@@ -43,8 +45,13 @@ class _BannerWithCarouselPageState extends State<AllinOne> {
   }
 
   Future<void> fetchData() async {
-    bannerItems = await gettouristplaces();
-    latestReleases = await gettouristplaces();
+    if (widget.type == "tourism") {
+      bannerItems = await gettouristplaces();
+      latestReleases = await gettouristplaces();
+    } else if (widget.type == "culture") {
+      bannerItems = await getcultureplaces();
+      latestReleases = await getcultureplaces();
+    }
     setState(() {});
   }
 
