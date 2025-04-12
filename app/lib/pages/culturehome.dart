@@ -1,3 +1,4 @@
+import 'package:app/pages/components/add_Culture.dart';
 import 'package:app/pages/components/all_places.dart';
 import 'package:app/pages/components/mapscreen.dart';
 import 'package:flutter/material.dart';
@@ -423,6 +424,44 @@ class _CultureHomeState extends State<CultureHome> {
         },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+      bottomNavigationBar: BottomAppBar(
+        color: Color.fromARGB(0, 0, 0, 0), // Make the background transparent
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 3),
+          child: Center(
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => CultureFormPage()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                    Colors.transparent, // Background color of the button
+                padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.add_location),
+                  Text(
+                    'Add New Places',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

@@ -19,6 +19,7 @@ class _AddTourismPlacePageState extends State<AddTourismPlacePage> {
   final TextEditingController timeNeededController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
 
+  // Dropdown selections
   String? selectedZone;
   String? selectedTourismType;
   String? selectedBestSeason;
@@ -62,42 +63,29 @@ class _AddTourismPlacePageState extends State<AddTourismPlacePage> {
                 label: "Zone",
                 value: selectedZone,
                 items: zones,
-                onChanged: (value) {
-                  setState(() {
-                    selectedZone = value;
-                  });
-                },
+                onChanged: (value) => setState(() => selectedZone = value),
               ),
               const SizedBox(height: 16),
               _buildDropdown(
                 label: "Tourism Type",
                 value: selectedTourismType,
                 items: tourismTypes,
-                onChanged: (value) {
-                  setState(() {
-                    selectedTourismType = value;
-                  });
-                },
+                onChanged:
+                    (value) => setState(() => selectedTourismType = value),
               ),
               const SizedBox(height: 16),
               _buildDropdown(
                 label: "Best Season",
                 value: selectedBestSeason,
                 items: bestSeasons,
-                onChanged: (value) {
-                  setState(() {
-                    selectedBestSeason = value;
-                  });
-                },
+                onChanged:
+                    (value) => setState(() => selectedBestSeason = value),
               ),
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     await _submitTourismPlace();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Form Submitted')),
-                    );
                   }
                 },
                 child: const Text("Submit"),
@@ -118,7 +106,6 @@ class _AddTourismPlacePageState extends State<AddTourismPlacePage> {
       padding: const EdgeInsets.only(bottom: 16),
       child: TextFormField(
         controller: controller,
-        style: const TextStyle(color: Colors.white),
         maxLines: maxLines,
         decoration: InputDecoration(
           labelText: label,
@@ -142,8 +129,6 @@ class _AddTourismPlacePageState extends State<AddTourismPlacePage> {
   }) {
     return DropdownButtonFormField<String>(
       value: value,
-      dropdownColor: Colors.black87,
-      style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
         labelText: label,
         enabledBorder: const OutlineInputBorder(
@@ -166,8 +151,6 @@ class _AddTourismPlacePageState extends State<AddTourismPlacePage> {
   }
 
   Future<void> _submitTourismPlace() async {
-    if (!_formKey.currentState!.validate()) return;
-
     if (selectedZone == null ||
         selectedTourismType == null ||
         selectedBestSeason == null) {
@@ -188,24 +171,29 @@ class _AddTourismPlacePageState extends State<AddTourismPlacePage> {
         "zone": selectedZone,
         "tourism_type": selectedTourismType,
         "best_season": selectedBestSeason,
+        "verified": false, // for admin to verify
         "created_at": FieldValue.serverTimestamp(),
       };
 
+      // Send to verification collection
       await FirebaseFirestore.instance
           .collection('touristplacesverify')
           .add(tourismData);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Tourism place added successfully!')),
+        const SnackBar(
+          content: Text('Tourism place submitted for verification!'),
+        ),
       );
 
+      // Reset form and state
       _formKey.currentState!.reset();
+      _clearControllers();
       setState(() {
         selectedZone = null;
         selectedTourismType = null;
         selectedBestSeason = null;
       });
-      _clearControllers();
     } catch (e) {
       ScaffoldMessenger.of(
         context,
@@ -224,7 +212,6 @@ class _AddTourismPlacePageState extends State<AddTourismPlacePage> {
 
   @override
   void dispose() {
-    // Dispose controllers
     placeNameController.dispose();
     townController.dispose();
     cityController.dispose();

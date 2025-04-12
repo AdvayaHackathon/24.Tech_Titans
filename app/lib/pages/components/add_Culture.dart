@@ -117,6 +117,14 @@ class _CultureFormPageState extends State<CultureFormPage> {
     }
   }
 
+  InputDecoration _inputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: const TextStyle(color: Colors.black54),
+      border: const OutlineInputBorder(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -132,41 +140,42 @@ class _CultureFormPageState extends State<CultureFormPage> {
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Culture Name'),
+                decoration: _inputDecoration('Culture Name'),
+                style: const TextStyle(color: Colors.black),
                 validator:
                     (value) => value!.isEmpty ? 'Enter culture name' : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _townController,
-                decoration: const InputDecoration(labelText: 'Town'),
+                decoration: _inputDecoration('Town'),
+                style: const TextStyle(color: Colors.black),
                 validator: (value) => value!.isEmpty ? 'Enter town' : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _cityController,
-                decoration: const InputDecoration(labelText: 'City'),
+                decoration: _inputDecoration('City'),
+                style: const TextStyle(color: Colors.black),
                 validator: (value) => value!.isEmpty ? 'Enter city' : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _districtController,
-                decoration: const InputDecoration(labelText: 'District'),
+                decoration: _inputDecoration('District'),
+                style: const TextStyle(color: Colors.black),
                 validator: (value) => value!.isEmpty ? 'Enter district' : null,
               ),
               const SizedBox(height: 12),
               InkWell(
                 onTap: _pickDate,
                 child: InputDecorator(
-                  decoration: const InputDecoration(
-                    labelText: 'Starting Date',
-                    border: OutlineInputBorder(),
-                  ),
+                  decoration: _inputDecoration('Starting Date'),
                   child: Text(
                     _selectedDate != null
                         ? '${_selectedDate!.day}-${_selectedDate!.month}-${_selectedDate!.year}'
                         : 'Select a date',
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Colors.black),
                   ),
                 ),
               ),
@@ -174,7 +183,8 @@ class _CultureFormPageState extends State<CultureFormPage> {
               TextFormField(
                 controller: _descriptionController,
                 maxLines: 4,
-                decoration: const InputDecoration(labelText: 'Description'),
+                decoration: _inputDecoration('Description'),
+                style: const TextStyle(color: Colors.black),
                 validator:
                     (value) => value!.isEmpty ? 'Enter description' : null,
               ),
@@ -188,18 +198,9 @@ class _CultureFormPageState extends State<CultureFormPage> {
                               DropdownMenuItem(value: zone, child: Text(zone)),
                         )
                         .toList(),
-                decoration: const InputDecoration(
-                  labelText: 'Zone',
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white24),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
-                  ),
-                  border: OutlineInputBorder(),
-                ),
-                dropdownColor: Colors.black,
-                style: const TextStyle(color: Colors.white),
+                decoration: _inputDecoration('Zone'),
+                dropdownColor: Colors.white,
+                style: const TextStyle(color: Colors.black),
                 onChanged: (value) => setState(() => _selectedZone = value),
                 validator: (value) => value == null ? 'Select a zone' : null,
               ),
@@ -213,18 +214,9 @@ class _CultureFormPageState extends State<CultureFormPage> {
                               DropdownMenuItem(value: type, child: Text(type)),
                         )
                         .toList(),
-                decoration: const InputDecoration(
-                  labelText: 'Culture Type',
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white24),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
-                  ),
-                  border: OutlineInputBorder(),
-                ),
-                dropdownColor: Colors.black,
-                style: const TextStyle(color: Colors.white),
+                decoration: _inputDecoration('Culture Type'),
+                dropdownColor: Colors.white,
+                style: const TextStyle(color: Colors.black),
                 onChanged:
                     (value) => setState(() => _selectedCultureType = value),
                 validator:
