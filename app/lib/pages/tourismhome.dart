@@ -200,7 +200,7 @@ class _BannerWithCarouselPageState extends State<TourismHome> {
                               icon: Icon(Icons.search, color: Colors.black),
                             ),
                             onChanged: (value) {
-                              // You can add search filtering logic here
+                              // Filtering logic here
                             },
                           ),
                         ),
@@ -280,11 +280,66 @@ class _BannerWithCarouselPageState extends State<TourismHome> {
                                   child: Container(
                                     margin: EdgeInsets.only(right: 12),
                                     width: 120,
-                                    decoration: BoxDecoration(
+                                    child: ClipRRect(
                                       borderRadius: BorderRadius.circular(8),
-                                      image: DecorationImage(
-                                        image: NetworkImage(item['image']!),
-                                        fit: BoxFit.cover,
+                                      child: Stack(
+                                        children: [
+                                          Image.network(
+                                            item['image']!,
+                                            width: 120,
+                                            height: double.infinity,
+                                            fit: BoxFit.cover,
+                                          ),
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              gradient: LinearGradient(
+                                                begin: Alignment.topCenter,
+                                                end: Alignment.bottomCenter,
+                                                colors: [
+                                                  Colors.transparent,
+                                                  Colors.black.withOpacity(0.7),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                          Positioned(
+                                            bottom: 28,
+                                            left: 6,
+                                            right: 6,
+                                            child: Text(
+                                              item['title'] ?? '',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ),
+                                          Positioned(
+                                            bottom: 8,
+                                            left: 6,
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.location_on,
+                                                  color: Colors.white,
+                                                  size: 12,
+                                                ),
+                                                SizedBox(width: 2),
+                                                Text(
+                                                  item['city'] ?? '',
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 12,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ),

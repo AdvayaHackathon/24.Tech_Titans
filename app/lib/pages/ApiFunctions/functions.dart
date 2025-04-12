@@ -26,7 +26,7 @@ String getCurrentSeason() {
   } else if (month >= 7 && month <= 9) {
     return 'Monsoon';
   } else if (month >= 10 && month <= 11) {
-    return 'Autumn';
+    return 'Spring';
   } else {
     return 'Winter';
   }

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 
 final CollectionReference touristcollection = FirebaseFirestore.instance
@@ -9,6 +10,7 @@ final CollectionReference imagescollection = FirebaseFirestore.instance
     .collection('images');
 final CollectionReference culturalcollection = FirebaseFirestore.instance
     .collection('culturalfest');
+final DateFormat formatter = DateFormat('yyyy-MM-dd');
 
 Future<List<Map<String, String>>> getbanneritems() async {
   print("Entered getbanneritems()");
@@ -431,4 +433,116 @@ Future<List<Map<String, String>>> gethighratedtouristplaces() async {
   }
   print(touristplaces);
   return touristplaces;
+}
+
+Future<Map<String, String>> getplacedetails(name) async {
+  print("Entered getplacedetails()");
+  Map<String, String> placedetails = {};
+  try {
+    await touristcollection.where('name', isEqualTo: name).get().then((
+      snapshot,
+    ) async {
+      if (snapshot.docs.isNotEmpty) {
+        var doc = snapshot.docs.first.data() as Map<String, dynamic>;
+        placedetails['name'] = doc['name'];
+        placedetails['city'] = doc['city'];
+        placedetails['state'] = doc['state'];
+        placedetails['significance'] = doc['significance'];
+        placedetails['best_season'] = doc['best_season'];
+
+        placedetails['zone'] = doc['zone'];
+      } else {
+        await culturalcollection.where('name', isEqualTo: name).get().then((
+          snapshot,
+        ) {
+          if (snapshot.docs.isNotEmpty) {
+            var doc = snapshot.docs.first.data() as Map<String, dynamic>;
+            placedetails['name'] = doc['name'];
+            placedetails['town'] = doc['town'];
+            placedetails['district'] = doc['district'];
+            placedetails['city'] = doc['city'];
+            placedetails['type'] = doc['type'];
+            placedetails['date_of_organizing'] = formatter.format(
+              doc['date_of_organizing'].toDate(),
+            );
+            placedetails['date_of_ending'] = formatter.format(
+              doc['date_of_ending'].toDate(),
+            );
+            placedetails['description'] = doc['description'];
+          }
+        });
+      }
+    });
+  } catch (e) {
+    print("Error fetching data: $e");
+  }
+  print(placedetails);
+  return placedetails;
+}
+
+Future<LatLng> getlatlong(name) async {
+  print("Entered getlatlong()");
+  LatLng latlng = LatLng(0, 0);
+  try {
+    await touristcollection.where('name', isEqualTo: name).get().then((
+      snapshot,
+    ) async {
+      if (snapshot.docs.isNotEmpty) {
+        var doc = snapshot.docs.first.data() as Map<String, dynamic>;
+        latlng = LatLng(
+          double.parse(doc['latitude']),
+          double.parse(doc['longitude']),
+        );
+      } else {
+        await culturalcollection.where('name', isEqualTo: name).get().then((
+          snapshot,
+        ) {
+          if (snapshot.docs.isNotEmpty) {
+            var doc = snapshot.docs.first.data() as Map<String, dynamic>;
+            latlng = LatLng(
+              double.parse(doc['latitude']),
+              double.parse(doc['longitude']),
+            );
+          }
+        });
+      }
+    });
+  } catch (e) {
+    print("Error fetching data: $e");
+  }
+  print(latlng);
+  return latlng;
+}
+
+Future<List<String>> getimages(name) async {
+  List<String> images = [];
+  try {
+    var getdocid = await touristcollection
+        .where('name', isEqualTo: name)
+        .get()
+        .then((snapshot) {
+          if (snapshot.docs.isNotEmpty) {
+            return snapshot.docs.first.id;
+          } else {
+            return null;
+          }
+        });
+    if (getdocid != null) {
+      await imagescollection.where('placeId', isEqualTo: getdocid).get().then((
+        snapshot,
+      ) {
+        if (snapshot.docs.isNotEmpty) {
+          for (var doc in snapshot.docs) {
+            images.add(doc['imageUrl']);
+          }
+        }
+      });
+    } else {
+      print("No document found with the name $name");
+    }
+  } catch (e) {
+    print("Error fetching data: $e");
+  }
+  print("Done fetching images for $name");
+  return images;
 }

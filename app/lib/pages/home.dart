@@ -69,10 +69,17 @@ class HomePage extends StatefulWidget {
 
 class _BannerWithCarouselPageState extends State<HomePage> {
   List<Map<String, String>> bannerItems = [];
-  List<Map<String, String>> latestReleases = [];
+  List<Map<String, String>> placesbyseason = [];
+  List<Map<String, String>> upcomingfest = [];
+  List<Map<String, String>> highratedplaces = [];
+  List<List<Map<String, String>>> allinone = [];
   late List<bool> _showSeeMoreList;
   late List<ScrollController> _scrollControllers;
-
+  List<String> title = [
+    'Best to Visit in ${getCurrentSeason()}',
+    'Upcoming Festivals in ${getCurrentMonth()}',
+    "High Rated Places",
+  ];
   bool _showSearchBar = false;
   TextEditingController _searchController = TextEditingController();
 
@@ -101,7 +108,10 @@ class _BannerWithCarouselPageState extends State<HomePage> {
 
   Future<void> fetchData() async {
     bannerItems = await getbanneritems();
-    latestReleases = await getbanneritems();
+    placesbyseason = await gettouristplacesbyseason(getCurrentSeason());
+    upcomingfest = await getupcomingcultureplaces();
+    highratedplaces = await gethighratedtouristplaces();
+    allinone = [placesbyseason, upcomingfest, highratedplaces];
     setState(() {});
   }
 
@@ -239,7 +249,7 @@ class _BannerWithCarouselPageState extends State<HomePage> {
                 ),
 
                 // Horizontal carousels
-                ...List.generate(5, (i) {
+                ...List.generate(title.length, (i) {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -252,7 +262,7 @@ class _BannerWithCarouselPageState extends State<HomePage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Latest Releases ${i + 1}',
+                              title[i],
                               style: TextStyle(
                                 fontSize: 20,
                                 color: Colors.white,
@@ -290,9 +300,9 @@ class _BannerWithCarouselPageState extends State<HomePage> {
                           controller: _scrollControllers[i],
                           scrollDirection: Axis.horizontal,
                           padding: EdgeInsets.symmetric(horizontal: 12),
-                          itemCount: latestReleases.length,
+                          itemCount: allinone[i].length,
                           itemBuilder: (context, index) {
-                            final item = latestReleases[index];
+                            final item = allinone[i][index];
                             return GestureDetector(
                               onTap: () {
                                 Navigator.push(
