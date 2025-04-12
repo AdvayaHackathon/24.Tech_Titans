@@ -1,6 +1,9 @@
 import 'package:app/pages/ApiFunctions/functions.dart';
+import 'package:app/pages/components/all_places.dart';
 import 'package:app/pages/culturehome.dart';
+import 'package:app/pages/loginsignup.dart';
 import 'package:app/pages/tourismhome.dart';
+import 'package:app/pages/userdetails.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:app/pages/ApiFunctions/apis.dart';
@@ -16,17 +19,36 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   int _selectedIndex = 0;
+  bool isLoggedIn = false; // Track login state
 
-  final List<Widget> _pages = [
-    HomePage(button: false), // Your banner carousel page
-    TourismHome(),
-    ExplorePage(),
-    CultureHome(),
-    MySpacePage(),
-  ];
+  // This will be called when login is successful
+  void handleLoginSuccess() {
+    setState(() {
+      isLoggedIn = true;
+      _selectedIndex = 4; // Optionally navigate to My Space after login
+    });
+  }
+
+  // This will be called when user logs out
+  void handleLogout() {
+    setState(() {
+      isLoggedIn = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> _pages = [
+      HomePage(button: false),
+      TourismHome(),
+      ExplorePage(),
+      CultureHome(),
+      // Show MySpacePage if logged in, otherwise LoginScreen
+      isLoggedIn
+          ? ProfileScreen(onLogout: handleLogout)
+          : LoginScreen(onLoginSuccess: handleLoginSuccess),
+    ];
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: _pages[_selectedIndex],
@@ -41,18 +63,24 @@ class _MainPageState extends State<MainPage> {
             _selectedIndex = index;
           });
         },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(
+        items: [
+          const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          const BottomNavigationBarItem(
             icon: Icon(Icons.travel_explore),
             label: 'Tourism',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.bolt), label: 'Explore'),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.bolt),
+            label: 'Explore',
+          ),
+          const BottomNavigationBarItem(
             icon: Icon(Icons.festival_outlined),
             label: 'Culture',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'My Space'),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.person),
+            label: isLoggedIn ? 'My Space' : 'Login',
+          ),
         ],
       ),
     );
@@ -139,92 +167,94 @@ class _BannerWithCarouselPageState extends State<HomePage> {
                   height: 400,
                   child: Stack(
                     children: [
-                      CarouselSlider.builder(
-                        itemCount: bannerItems.length,
-                        itemBuilder: (context, index, realIndex) {
-                          final banner = bannerItems[index];
-                          return GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (_) => DetailPage(
-                                        title: banner['title']!,
-                                        imagePath: banner['image']!,
+                      bannerItems.isEmpty
+                          ? Center(child: CircularProgressIndicator())
+                          : CarouselSlider.builder(
+                            itemCount: bannerItems.length,
+                            itemBuilder: (context, index, realIndex) {
+                              final banner = bannerItems[index];
+                              return GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (_) => DetailPage(
+                                            title: banner['title']!,
+                                            imagePath: banner['image']!,
+                                          ),
+                                    ),
+                                  );
+                                },
+                                child: Stack(
+                                  children: [
+                                    Image.network(
+                                      banner['image']!,
+                                      width: double.infinity,
+                                      height: 400,
+                                      fit: BoxFit.cover,
+                                    ),
+                                    Container(
+                                      height: 400,
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topCenter,
+                                          end: Alignment.bottomCenter,
+                                          colors: [
+                                            Colors.black.withOpacity(0.3),
+                                            Colors.black.withOpacity(0.7),
+                                          ],
+                                        ),
                                       ),
+                                    ),
+                                    Positioned(
+                                      bottom: 34,
+                                      left: 16,
+                                      child: Text(
+                                        banner['title']!,
+                                        style: TextStyle(
+                                          fontSize: 28,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    Positioned(
+                                      bottom: 15,
+                                      left: 16,
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            Icons.location_on,
+                                            color: Colors.white,
+                                            size: 16,
+                                          ),
+                                          SizedBox(width: 4),
+                                          Text(
+                                            banner['city']!,
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               );
                             },
-                            child: Stack(
-                              children: [
-                                Image.network(
-                                  banner['image']!,
-                                  width: double.infinity,
-                                  height: 400,
-                                  fit: BoxFit.cover,
-                                ),
-                                Container(
-                                  height: 400,
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
-                                      colors: [
-                                        Colors.black.withOpacity(0.3),
-                                        Colors.black.withOpacity(0.7),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  bottom: 34,
-                                  left: 16,
-                                  child: Text(
-                                    banner['title']!,
-                                    style: TextStyle(
-                                      fontSize: 28,
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  bottom: 15,
-                                  left: 16,
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.location_on,
-                                        color: Colors.white,
-                                        size: 16,
-                                      ),
-                                      SizedBox(width: 4),
-                                      Text(
-                                        banner['city']!,
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                            options: CarouselOptions(
+                              height: 400,
+                              viewportFraction: 1.0,
+                              autoPlay: true,
+                              autoPlayInterval: Duration(seconds: 4),
+                              autoPlayAnimationDuration: Duration(
+                                milliseconds: 1000,
+                              ),
+                              autoPlayCurve: Curves.easeInOut,
                             ),
-                          );
-                        },
-                        options: CarouselOptions(
-                          height: 400,
-                          viewportFraction: 1.0,
-                          autoPlay: true,
-                          autoPlayInterval: Duration(seconds: 4),
-                          autoPlayAnimationDuration: Duration(
-                            milliseconds: 1000,
                           ),
-                          autoPlayCurve: Curves.easeInOut,
-                        ),
-                      ),
 
                       // Search Icon
                       Positioned(
@@ -249,7 +279,7 @@ class _BannerWithCarouselPageState extends State<HomePage> {
                 ),
 
                 // Horizontal carousels
-                ...List.generate(title.length, (i) {
+                ...List.generate(3, (i) {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -284,7 +314,10 @@ class _BannerWithCarouselPageState extends State<HomePage> {
                                       context,
                                       MaterialPageRoute(
                                         builder:
-                                            (_) => const LatestReleasesPage(),
+                                            (_) => AllPlaces(
+                                              function: allinone[i],
+                                              title: title[i],
+                                            ),
                                       ),
                                     );
                                   }
@@ -294,101 +327,107 @@ class _BannerWithCarouselPageState extends State<HomePage> {
                           ],
                         ),
                       ),
-                      SizedBox(
-                        height: 180,
-                        child: ListView.builder(
-                          controller: _scrollControllers[i],
-                          scrollDirection: Axis.horizontal,
-                          padding: EdgeInsets.symmetric(horizontal: 12),
-                          itemCount: allinone[i].length,
-                          itemBuilder: (context, index) {
-                            final item = allinone[i][index];
-                            return GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (_) => DetailPage(
-                                          title: item['title']!,
-                                          imagePath: item['image']!,
+                      allinone.isEmpty
+                          ? Center(child: CircularProgressIndicator())
+                          : SizedBox(
+                            height: 180,
+                            child: ListView.builder(
+                              controller: _scrollControllers[i],
+                              scrollDirection: Axis.horizontal,
+                              padding: EdgeInsets.symmetric(horizontal: 12),
+                              itemCount: allinone[i].length,
+                              itemBuilder: (context, index) {
+                                final item = allinone[i][index];
+                                return GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (_) => DetailPage(
+                                              title: item['title']!,
+                                              imagePath: item['image']!,
+                                            ),
+                                      ),
+                                    );
+                                  },
+                                  child: Container(
+                                    margin: EdgeInsets.only(right: 12),
+                                    width: 120,
+                                    child: Stack(
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                          child: Image.network(
+                                            item['image']!,
+                                            width: 120,
+                                            height: 180,
+                                            fit: BoxFit.cover,
+                                          ),
                                         ),
+                                        Container(
+                                          width: 120,
+                                          height: 180,
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            gradient: LinearGradient(
+                                              begin: Alignment.topCenter,
+                                              end: Alignment.bottomCenter,
+                                              colors: [
+                                                Colors.transparent,
+                                                Colors.black.withOpacity(0.8),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        Positioned(
+                                          bottom: 28,
+                                          left: 8,
+                                          right: 8,
+                                          child: Text(
+                                            item['title'] ?? '',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        Positioned(
+                                          bottom: 10,
+                                          left: 8,
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                Icons.location_on,
+                                                color: Colors.white,
+                                                size: 14,
+                                              ),
+                                              SizedBox(width: 4),
+                                              Text(
+                                                item['city'] ?? '',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 12,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 );
                               },
-                              child: Container(
-                                margin: EdgeInsets.only(right: 12),
-                                width: 120,
-                                child: Stack(
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(8),
-                                      child: Image.network(
-                                        item['image']!,
-                                        width: 120,
-                                        height: 180,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                    Container(
-                                      width: 120,
-                                      height: 180,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(8),
-                                        gradient: LinearGradient(
-                                          begin: Alignment.topCenter,
-                                          end: Alignment.bottomCenter,
-                                          colors: [
-                                            Colors.transparent,
-                                            Colors.black.withOpacity(0.8),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    Positioned(
-                                      bottom: 28,
-                                      left: 8,
-                                      right: 8,
-                                      child: Text(
-                                        item['title'] ?? '',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                        ),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                    Positioned(
-                                      bottom: 10,
-                                      left: 8,
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.location_on,
-                                            color: Colors.white,
-                                            size: 14,
-                                          ),
-                                          SizedBox(width: 4),
-                                          Text(
-                                            item['city'] ?? '',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 12,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
+                            ),
+                          ),
                     ],
                   );
                 }),
@@ -423,16 +462,6 @@ class _BannerWithCarouselPageState extends State<HomePage> {
               ),
             ),
         ],
-      ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 16, right: 16),
-        child: FloatingActionButton(
-          onPressed: () {
-            // Your map logic
-          },
-          backgroundColor: Colors.black,
-          child: Icon(Icons.location_on, color: Colors.white, size: 30),
-        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
     );

@@ -1,29 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
-void main() => runApp(const MyApp());
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Add Tourism Place',
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: Colors.black,
-        inputDecorationTheme: const InputDecorationTheme(
-          border: OutlineInputBorder(),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.grey),
-          ),
-          labelStyle: TextStyle(color: Colors.white),
-        ),
-      ),
-      debugShowCheckedModeBanner: false,
-      home: const AddTourismPlacePage(),
-    );
-  }
-}
 
 class AddTourismPlacePage extends StatefulWidget {
   const AddTourismPlacePage({super.key});
@@ -34,6 +10,14 @@ class AddTourismPlacePage extends StatefulWidget {
 
 class _AddTourismPlacePageState extends State<AddTourismPlacePage> {
   final _formKey = GlobalKey<FormState>();
+
+  // TextEditingControllers
+  final TextEditingController placeNameController = TextEditingController();
+  final TextEditingController townController = TextEditingController();
+  final TextEditingController cityController = TextEditingController();
+  final TextEditingController districtController = TextEditingController();
+  final TextEditingController timeNeededController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
 
   String? selectedZone;
   String? selectedTourismType;
@@ -55,6 +39,7 @@ class _AddTourismPlacePageState extends State<AddTourismPlacePage> {
       appBar: AppBar(
         title: const Text("Add Tourism Place"),
         backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -62,12 +47,16 @@ class _AddTourismPlacePageState extends State<AddTourismPlacePage> {
           key: _formKey,
           child: Column(
             children: [
-              _buildTextField("Tourism Place Name"),
-              _buildTextField("Town"),
-              _buildTextField("City"),
-              _buildTextField("District"),
-              _buildTextField("Time Needed to Visit"),
-              _buildTextField("Description of the Place", maxLines: 4),
+              _buildTextField("Tourism Place Name", placeNameController),
+              _buildTextField("Town", townController),
+              _buildTextField("City", cityController),
+              _buildTextField("District", districtController),
+              _buildTextField("Time Needed to Visit", timeNeededController),
+              _buildTextField(
+                "Description of the Place",
+                descriptionController,
+                maxLines: 4,
+              ),
               const SizedBox(height: 16),
               _buildDropdown(
                 label: "Zone",
@@ -103,9 +92,9 @@ class _AddTourismPlacePageState extends State<AddTourismPlacePage> {
               ),
               const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   if (_formKey.currentState!.validate()) {
-                    // Handle submit
+                    await _submitTourismPlace();
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Form Submitted')),
                     );
@@ -120,13 +109,27 @@ class _AddTourismPlacePageState extends State<AddTourismPlacePage> {
     );
   }
 
-  Widget _buildTextField(String label, {int maxLines = 1}) {
+  Widget _buildTextField(
+    String label,
+    TextEditingController controller, {
+    int maxLines = 1,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: TextFormField(
+        controller: controller,
         style: const TextStyle(color: Colors.white),
         maxLines: maxLines,
-        decoration: InputDecoration(labelText: label),
+        decoration: InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
+        ),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please enter $label';
+          }
+          return null;
+        },
       ),
     );
   }
@@ -153,6 +156,81 @@ class _AddTourismPlacePageState extends State<AddTourismPlacePage> {
               .map((item) => DropdownMenuItem(value: item, child: Text(item)))
               .toList(),
       onChanged: onChanged,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please select $label';
+        }
+        return null;
+      },
     );
+  }
+
+  Future<void> _submitTourismPlace() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    if (selectedZone == null ||
+        selectedTourismType == null ||
+        selectedBestSeason == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select all dropdown fields.')),
+      );
+      return;
+    }
+
+    try {
+      final tourismData = {
+        "name": placeNameController.text.trim(),
+        "town": townController.text.trim(),
+        "city": cityController.text.trim(),
+        "district": districtController.text.trim(),
+        "time_needed_to_visit": timeNeededController.text.trim(),
+        "description": descriptionController.text.trim(),
+        "zone": selectedZone,
+        "tourism_type": selectedTourismType,
+        "best_season": selectedBestSeason,
+        "created_at": FieldValue.serverTimestamp(),
+      };
+
+      await FirebaseFirestore.instance
+          .collection('touristplaces')
+          .add(tourismData);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tourism place added successfully!')),
+      );
+
+      _formKey.currentState!.reset();
+      setState(() {
+        selectedZone = null;
+        selectedTourismType = null;
+        selectedBestSeason = null;
+      });
+      _clearControllers();
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
+    }
+  }
+
+  void _clearControllers() {
+    placeNameController.clear();
+    townController.clear();
+    cityController.clear();
+    districtController.clear();
+    timeNeededController.clear();
+    descriptionController.clear();
+  }
+
+  @override
+  void dispose() {
+    // Dispose controllers
+    placeNameController.dispose();
+    townController.dispose();
+    cityController.dispose();
+    districtController.dispose();
+    timeNeededController.dispose();
+    descriptionController.dispose();
+    super.dispose();
   }
 }

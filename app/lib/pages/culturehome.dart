@@ -1,3 +1,5 @@
+import 'package:app/pages/components/all_places.dart';
+import 'package:app/pages/components/mapscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:app/pages/ApiFunctions/functions.dart';
@@ -230,7 +232,7 @@ class _CultureHomeState extends State<CultureHome> {
               ],
             ),
             // Repeated Horizontal Lists
-            ...List.generate(types.length, (i) {
+            ...List.generate(5, (i) {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -264,7 +266,11 @@ class _CultureHomeState extends State<CultureHome> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) => const LatestReleasesPage(),
+                                    builder:
+                                        (_) => AllPlaces(
+                                          function: Listofall[i],
+                                          title: types[i],
+                                        ),
                                   ),
                                 );
                               }
@@ -408,32 +414,15 @@ class _CultureHomeState extends State<CultureHome> {
         backgroundColor: Colors.black,
         child: Icon(Icons.location_on, color: Colors.white),
         onPressed: () {
-          // Your map logic here
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MapScreen(name: "Cultural"),
+            ),
+          );
         },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-    );
-  }
-}
-
-class LatestReleasesPage extends StatelessWidget {
-  const LatestReleasesPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: Text('All Releases', style: TextStyle(color: Colors.white)),
-        iconTheme: IconThemeData(color: Colors.white),
-      ),
-      body: Center(
-        child: Text(
-          'This is the new page for all latest releases.',
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
     );
   }
 }

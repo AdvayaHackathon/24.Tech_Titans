@@ -1,3 +1,6 @@
+import 'package:app/pages/components/add_Tourism.dart';
+import 'package:app/pages/components/all_places.dart';
+import 'package:app/pages/components/mapscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:app/pages/ApiFunctions/apis.dart';
@@ -209,7 +212,7 @@ class _BannerWithCarouselPageState extends State<TourismHome> {
                 )
                 : Center(child: CircularProgressIndicator(color: Colors.white)),
 
-            ...List.generate(types.length, (i) {
+            ...List.generate(4, (i) {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -243,7 +246,11 @@ class _BannerWithCarouselPageState extends State<TourismHome> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) => const LatestReleasesPage(),
+                                    builder:
+                                        (_) => AllPlaces(
+                                          function: listofall[i],
+                                          title: types[i],
+                                        ),
                                   ),
                                 );
                               }
@@ -362,33 +369,56 @@ class _BannerWithCarouselPageState extends State<TourismHome> {
         padding: const EdgeInsets.only(bottom: 16, right: 16),
         child: FloatingActionButton(
           onPressed: () {
-            // Add your map logic here
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MapScreen(name: "Tourism"),
+              ),
+            );
           },
           backgroundColor: const Color.fromARGB(255, 0, 0, 0),
           child: Icon(Icons.location_on, color: Colors.white, size: 30),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-    );
-  }
-}
-
-class LatestReleasesPage extends StatelessWidget {
-  const LatestReleasesPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: Text('All Releases', style: TextStyle(color: Colors.white)),
-        iconTheme: IconThemeData(color: Colors.white),
-      ),
-      body: Center(
-        child: Text(
-          'This is the new page for all latest releases.',
-          style: TextStyle(color: Colors.white, fontSize: 16),
+      bottomNavigationBar: BottomAppBar(
+        color: Color.fromARGB(0, 0, 0, 0), // Make the background transparent
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 3),
+          child: Center(
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AddTourismPlacePage(),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                    Colors.transparent, // Background color of the button
+                padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.add_location),
+                  Text(
+                    'Add New Places',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );

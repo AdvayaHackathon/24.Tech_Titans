@@ -59,7 +59,6 @@ Future<List<Map<String, String>>> gettouristplaces() async {
   try {
     QuerySnapshot popularplaces =
         await touristcollection
-            .limit(5)
             .where(
               'significance',
               whereIn: ['Nature', 'Beach', 'Wildlife', 'Historical'],
@@ -102,10 +101,7 @@ Future<List<Map<String, String>>> gettouristplacesspecific(type) async {
   final List<Map<String, String>> touristplaces = [];
   try {
     QuerySnapshot popularplaces =
-        await touristcollection
-            .limit(5)
-            .where('significance', isEqualTo: type)
-            .get();
+        await touristcollection.where('significance', isEqualTo: type).get();
     print("done fetching popular places $popularplaces");
     for (var placeDoc in popularplaces.docs) {
       String placeId = placeDoc.id;
@@ -187,7 +183,7 @@ Future<List<Map<String, String>>> getculturalplacesspecific(type) async {
   final List<Map<String, String>> touristplaces = [];
   try {
     QuerySnapshot popularplaces =
-        await culturalcollection.limit(5).where('type', isEqualTo: type).get();
+        await culturalcollection.where('type', isEqualTo: type).get();
     print("done fetching popular places $popularplaces");
     for (var placeDoc in popularplaces.docs) {
       String placeId = placeDoc.id;
@@ -229,7 +225,7 @@ Future<List<Map<String, String>>> getupcomingcultureplaces() async {
   try {
     QuerySnapshot popularplaces =
         await culturalcollection
-            .limit(5)
+            .limit(10)
             .where('date_of_organizing', isGreaterThan: DateTime.now())
             .get();
     print("done fetching popular places $popularplaces");
@@ -274,7 +270,7 @@ Future<List<Map<String, String>>> getalltouristplaces() async {
   try {
     QuerySnapshot popularplaces =
         await touristcollection
-            .limit(5)
+            .limit(7)
             .orderBy('name', descending: false)
             .get();
     print("done fetching popular places $popularplaces");
@@ -315,7 +311,7 @@ Future<List<Map<String, String>>> getallculturalplaces() async {
   try {
     QuerySnapshot popularplaces =
         await culturalcollection
-            .limit(5)
+            .limit(7)
             .orderBy('name', descending: false)
             .get();
     print("done fetching popular places $popularplaces");
@@ -545,4 +541,64 @@ Future<List<String>> getimages(name) async {
   }
   print("Done fetching images for $name");
   return images;
+}
+
+Future<List<Map<String, String>>> getlocationoftourismdetails() async {
+  print("Entered gettouristplaces()");
+  final List<Map<String, String>> touristplaces = [];
+  try {
+    QuerySnapshot popularplaces =
+        await touristcollection
+            .where(
+              'significance',
+              whereIn: ["Nature", "Beach", "Wildlife", "Historical"],
+            )
+            .get();
+    print("done fetching popular places $popularplaces");
+    for (var placeDoc in popularplaces.docs) {
+      String placeId = placeDoc.id;
+      String title = placeDoc['name'];
+      String longitude = placeDoc['longitude'];
+      String latitude = placeDoc['latitude'];
+      // Step 2: Fetch only one image for this place
+
+      // Step 3: Combine into a JSON-like map
+      touristplaces.add({
+        'title': title,
+        'longitude': longitude,
+        'latitude': latitude, // Use empty string if no image found
+      });
+    }
+  } catch (e) {
+    print("Error fetching data: $e");
+  }
+  print(touristplaces);
+  return touristplaces;
+}
+
+Future<List<Map<String, String>>> getlocationofculturaldetails() async {
+  print("Entered gettouristplaces()");
+  final List<Map<String, String>> touristplaces = [];
+  try {
+    QuerySnapshot popularplaces = await culturalcollection.get();
+    print("done fetching popular places $popularplaces");
+    for (var placeDoc in popularplaces.docs) {
+      String placeId = placeDoc.id;
+      String title = placeDoc['name'];
+      String longitude = placeDoc['longitude'];
+      String latitude = placeDoc['latitude'];
+      // Step 2: Fetch only one image for this place
+
+      // Step 3: Combine into a JSON-like map
+      touristplaces.add({
+        'title': title,
+        'longitude': longitude,
+        'latitude': latitude, // Use empty string if no image found
+      });
+    }
+  } catch (e) {
+    print("Error fetching data: $e");
+  }
+  print(touristplaces);
+  return touristplaces;
 }

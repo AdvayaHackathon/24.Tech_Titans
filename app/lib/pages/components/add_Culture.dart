@@ -1,34 +1,7 @@
 // ignore: file_names
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
-void main() => runApp(const MyApp());
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Culture Form',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: Colors.black,
-        primaryColor: Colors.white,
-        inputDecorationTheme: const InputDecorationTheme(
-          labelStyle: TextStyle(color: Colors.white),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.white24),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.white),
-          ),
-        ),
-        textTheme: const TextTheme(bodyMedium: TextStyle(color: Colors.white)),
-      ),
-      home: const CultureFormPage(),
-    );
-  }
-}
+import 'package:firebase_core/firebase_core.dart';
 
 class CultureFormPage extends StatefulWidget {
   const CultureFormPage({super.key});
@@ -78,33 +51,67 @@ class _CultureFormPageState extends State<CultureFormPage> {
     }
   }
 
-  void _submitForm() {
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      // You can collect and process the data here
-      showDialog(
-        context: context,
-        builder:
-            (_) => AlertDialog(
-              backgroundColor: Colors.grey[900],
-              title: const Text(
-                'Form Submitted',
-                style: TextStyle(color: Colors.white),
-              ),
-              content: const Text(
-                'Thank you for adding culture details!',
-                style: TextStyle(color: Colors.white70),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text(
-                    'OK',
-                    style: TextStyle(color: Colors.white),
-                  ),
+      final data = {
+        'name': _nameController.text.trim(),
+        'town': _townController.text.trim(),
+        'city': _cityController.text.trim(),
+        'district': _districtController.text.trim(),
+        'starting_date': _selectedDate?.toIso8601String() ?? '',
+        'description': _descriptionController.text.trim(),
+        'zone': _selectedZone,
+        'culture_type': _selectedCultureType,
+        'created_at': Timestamp.now(),
+      };
+
+      try {
+        await FirebaseFirestore.instance.collection('culturalfest').add(data);
+
+        showDialog(
+          context: context,
+          builder:
+              (_) => AlertDialog(
+                backgroundColor: Colors.grey[900],
+                title: const Text(
+                  'Success',
+                  style: TextStyle(color: Colors.white),
                 ),
-              ],
-            ),
-      );
+                content: const Text(
+                  'Your cultural event has been added.',
+                  style: TextStyle(color: Colors.white70),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text(
+                      'OK',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+        );
+
+        _formKey.currentState!.reset();
+        _nameController.clear();
+        _townController.clear();
+        _cityController.clear();
+        _districtController.clear();
+        _descriptionController.clear();
+        setState(() {
+          _selectedDate = null;
+          _selectedZone = null;
+          _selectedCultureType = null;
+        });
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('Failed to submit: $e'),
+          ),
+        );
+      }
     }
   }
 
