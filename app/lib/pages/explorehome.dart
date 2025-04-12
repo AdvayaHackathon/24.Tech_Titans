@@ -1,5 +1,7 @@
+import 'package:app/pages/components/destails.dart';
 import 'package:flutter/material.dart';
 import 'ApiFunctions/apis.dart';
+import 'components/destails.dart'; // Make sure you import the details page
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
@@ -17,9 +19,9 @@ class _ExplorePageState extends State<ExplorePage> {
   String title = "Tourism Places";
 
   late List<Map<String, String>> episodes = [];
+
   @override
   void initState() {
-    print("Entered initState()");
     super.initState();
     getdata();
   }
@@ -106,58 +108,74 @@ class _ExplorePageState extends State<ExplorePage> {
                 sliver: SliverGrid(
                   delegate: SliverChildBuilderDelegate((context, index) {
                     final episode = _filteredEpisodes[index];
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Stack(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(6),
-                              child: Image.network(
-                                episode['image']!,
-                                width: double.infinity,
-                                height: 100,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 6,
-                              right: 6,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 6,
-                                  vertical: 2,
+                    return GestureDetector(
+                      onTap: () {
+                        // Navigate to the DetailsPage when tapped
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => DetailPage(
+                                  title: episode['title']!,
+
+                                  imagePath: episode['image']!,
                                 ),
-                                color: Colors.black54,
-                                child: Text(
-                                  episode['city']!,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
+                          ),
+                        );
+                      },
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Stack(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(6),
+                                child: Image.network(
+                                  episode['image']!,
+                                  width: double.infinity,
+                                  height: 100,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              Positioned(
+                                bottom: 6,
+                                right: 6,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
+                                  color: Colors.black54,
+                                  child: Text(
+                                    episode['city']!,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                    ),
                                   ),
                                 ),
                               ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            episode['title']!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          episode['title']!,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
                           ),
-                        ),
-                        Text(
-                          episode['city']!,
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 12,
+                          Text(
+                            episode['city']!,
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              fontSize: 12,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     );
                   }, childCount: _filteredEpisodes.length),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -183,7 +201,6 @@ class _ExplorePageState extends State<ExplorePage> {
                   colors: [Color(0xFF1E1E1E), Color(0xFF2D2D2D)],
                 ),
               ),
-
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -202,7 +219,7 @@ class _ExplorePageState extends State<ExplorePage> {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.transparent, // transparent background
+                        color: Colors.transparent,
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: const Text(
@@ -226,7 +243,7 @@ class _ExplorePageState extends State<ExplorePage> {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.transparent, // transparent background
+                        color: Colors.transparent,
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: const Text(
