@@ -66,7 +66,9 @@ class _CultureFormPageState extends State<CultureFormPage> {
       };
 
       try {
-        await FirebaseFirestore.instance.collection('culturalfest').add(data);
+        await FirebaseFirestore.instance
+            .collection('cultural_verify')
+            .add(data);
 
         showDialog(
           context: context,

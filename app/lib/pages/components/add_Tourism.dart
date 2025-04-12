@@ -192,7 +192,7 @@ class _AddTourismPlacePageState extends State<AddTourismPlacePage> {
       };
 
       await FirebaseFirestore.instance
-          .collection('touristplaces')
+          .collection('touristplacesverify')
           .add(tourismData);
 
       ScaffoldMessenger.of(context).showSnackBar(
